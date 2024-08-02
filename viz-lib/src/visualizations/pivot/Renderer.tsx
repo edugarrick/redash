@@ -4,7 +4,7 @@ import { get, find, pick, map, mapValues } from "lodash";
 import PivotTableUI from "react-pivottable/PivotTableUI";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import { formatColumnValue } from "@/lib/utils";
-import { interpolateRdBu } from "d3-scale-chromatic";
+import { interpolateRdBu, interpolateBlues, interpolateReds, interpolateOranges } from "d3-scale-chromatic";
 import * as d3 from 'd3';
 
 import "react-pivottable/pivottable.css";
@@ -76,10 +76,15 @@ export default function Renderer({ data, options, onOptionsChange }: any) {
                       tableColorScaleGenerator={(values:any) => {
                         const min = Math.min.apply(Math, values);
                         const max = Math.max.apply(Math, values);
-                        const range = max - min;
+                        const absmax = Math.max.apply(Math, [Math.abs(min), Math.abs(max)])
                         return (x: any) => {
-                          const progress = (max - x) / range;
-                          const backgroundColor = lighten( interpolateRdBu(progress) ,0.3)
+                          let backgroundColor = interpolateRdBu(0)
+                          const progress = (absmax - Math.abs(x)) / absmax;
+                          if (x > 0) {
+                            backgroundColor = lighten( interpolateOranges(1-progress) ,0.3)
+                          } else {
+                            backgroundColor = lighten( interpolateBlues(1-progress) ,0.3)
+                          }
                           return { backgroundColor };
                         };
                       }}
